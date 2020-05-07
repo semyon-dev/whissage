@@ -1,7 +1,7 @@
 # whissage
 The backend of blockchain-based messenger built on ethereum whisper.
 
-[Сurrently in active development]
+**Сurrently in active development**
 
 ## Run & build
 You need go v1.14 minimum & geth 
@@ -13,7 +13,11 @@ You need go v1.14 minimum & geth
 
 2. Run geth
 
-`geth --datadir path/to/custom/data/folder --networkid 2`
+`bootnode --nodekey=boot.key`
+
+than copy url and:
+
+`geth --rpc --shh --ws --wsapi web3,rpc,eth,net,shh --datadir . --networkid 2 --bootnodes enode://you_url`
 
 #### Mainnet
 

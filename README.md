@@ -6,15 +6,20 @@ The backend of blockchain-based messenger built on ethereum whisper.
 ## Run & build
 You need go v1.14 minimum & geth 
 
-Private network
+#### Private network
+1. Creating The Genesis Block
 
 `geth --datadir /path_to_project/whissage/ init genesis.json`
 
-Mainnet
+2. Run geth
+
+`geth --datadir path/to/custom/data/folder --networkid 2`
+
+#### Mainnet
 
 `geth --rpc --shh --ws` or `geth --syncmode "light" --rpc --shh --ws`
 
-Run app
+#### Run app
 
 `go run main.go` or `go build main.go`
 

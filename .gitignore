@@ -22,4 +22,5 @@ keys.txt
 
 # geth
 geth/
+geth.ipc
 keystore/

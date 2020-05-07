@@ -19,3 +19,7 @@
 
 # keys
 keys.txt
+
+# geth
+geth/
+keystore/

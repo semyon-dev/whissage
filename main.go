@@ -19,8 +19,6 @@ func main() {
 
 	log.SetOutput(os.Stdout)
 
-	go Subscribe()
-
 	client, err := shhclient.Dial(url)
 	if err != nil {
 		log.Fatal("connection: ", err)
@@ -32,7 +30,7 @@ func main() {
 		log.Fatal("NewKeyPair: ", err)
 	}
 	fmt.Println("keyID:", keyID)
-	file, err := os.Open("keys.txt")
+	file, err := os.OpenFile("keys.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	if err != nil {
 		log.Fatal("Open file: ", err)
 	}
@@ -46,6 +44,8 @@ func main() {
 	}
 
 	fmt.Println("publicKey:", hexutil.Encode(publicKey))
+
+	go Subscribe() // Subscribe for messages
 
 	message := whisperv6.NewMessage{
 		Payload:   []byte("Hello from Semyon!"),

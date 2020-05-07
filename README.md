@@ -1,4 +1,4 @@
-# whissage
+# whissage (whisper message)
 The backend of blockchain-based messenger built on ethereum whisper.
 
 **Сurrently in active development**
@@ -8,6 +8,7 @@ You need go v1.14 minimum & geth
 
 #### Private network
 1. Creating The Genesis Block
+You should change address (alloc) in genesis.json before run!
 
 `geth --datadir /path_to_project/whissage/ init genesis.json`
 

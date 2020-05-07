@@ -12,9 +12,9 @@ import (
 
 func Subscribe() {
 
-	client, err := shhclient.Dial("ws://127.0.0.1:8546")
+	client, err := shhclient.Dial(url)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("connection:", err)
 	}
 	fmt.Println("we have a whisper connection from Subscriber")
 

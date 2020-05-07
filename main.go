@@ -13,35 +13,36 @@ import (
 )
 
 var keyID string
+var url = "ws://127.0.0.1:8546"
 
 func main() {
 
+	log.SetOutput(os.Stdout)
+
 	go Subscribe()
 
-	client, err := shhclient.Dial("ws://127.0.0.1:8546")
+	client, err := shhclient.Dial(url)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("connection: ", err)
 	}
 	fmt.Println("we have a whisper connection")
 
 	keyID, err = client.NewKeyPair(context.Background())
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("NewKeyPair: ", err)
 	}
+	fmt.Println("keyID:", keyID)
 	file, err := os.Open("keys.txt")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Open file: ", err)
 	}
 	_, err = file.WriteString(keyID)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("WriteString: ", err)
 	}
-
-	fmt.Println("keyID:", keyID)
-
 	publicKey, err := client.PublicKey(context.Background(), keyID)
 	if err != nil {
-		log.Print(err)
+		log.Print("PublicKey", err)
 	}
 
 	fmt.Println("publicKey:", hexutil.Encode(publicKey))

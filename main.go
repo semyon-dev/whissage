@@ -1,15 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/whisper/shhclient"
 	"github.com/ethereum/go-ethereum/whisper/whisperv6"
 	"log"
 	"os"
-	"runtime"
-
-	"github.com/ethereum/go-ethereum/whisper/shhclient"
+	"time"
 )
 
 var keyID string
@@ -25,20 +25,24 @@ func main() {
 	}
 	fmt.Println("we have a whisper connection")
 
-	keyID, err = client.NewKeyPair(context.Background())
-	if err != nil {
-		log.Fatal("NewKeyPair: ", err)
+	if len(testKey) == 0 {
+		keyID, err = client.NewKeyPair(context.Background())
+		if err != nil {
+			log.Fatal("NewKeyPair: ", err)
+		}
+		fmt.Println("keyID:", keyID)
+		file, err := os.OpenFile("keys.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		if err != nil {
+			log.Fatal("Open file: ", err)
+		}
+		_, err = file.WriteString(keyID + "\n")
+		if err != nil {
+			log.Fatal("WriteString: ", err)
+		}
+		testKey = keyID
 	}
-	fmt.Println("keyID:", keyID)
-	file, err := os.OpenFile("keys.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-	if err != nil {
-		log.Fatal("Open file: ", err)
-	}
-	_, err = file.WriteString(keyID)
-	if err != nil {
-		log.Fatal("WriteString: ", err)
-	}
-	publicKey, err := client.PublicKey(context.Background(), keyID)
+
+	publicKey, err := client.PublicKey(context.Background(), testKey)
 	if err != nil {
 		log.Print("PublicKey", err)
 	}
@@ -47,19 +51,26 @@ func main() {
 
 	go Subscribe() // Subscribe for messages
 
-	message := whisperv6.NewMessage{
-		Payload:   []byte("Hello from Semyon!"),
-		PublicKey: publicKey,
-		TTL:       60,
-		PowTime:   2,
-		PowTarget: 2.5,
+	for {
+		time.Sleep(500 * time.Millisecond)
+		fmt.Println("enter a message: ")
+		body, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		if err != nil {
+			fmt.Println(err)
+		}
+		message := whisperv6.NewMessage{
+			Payload:   []byte(body),
+			PublicKey: publicKey,
+			TTL:       60,
+			PowTime:   2,
+			PowTarget: 2.5,
+		}
+		messageHash, err := client.Post(context.Background(), message)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("messageHash: ", messageHash)
 	}
 
-	messageHash, err := client.Post(context.Background(), message)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("messageHash:", messageHash)
-	runtime.Goexit() // wait for goroutines to finish
+	// runtime.Goexit() // wait for goroutines to finish
 }

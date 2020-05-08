@@ -1,4 +1,4 @@
-# whissage (whisper message)
+# whissage (whisper messenger)
 The backend of blockchain-based messenger built on ethereum whisper.
 
 **Сurrently in active development**

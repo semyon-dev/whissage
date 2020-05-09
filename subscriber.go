@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/whisper/shhclient"
 	"github.com/ethereum/go-ethereum/whisper/whisperv6"
+	"github.com/semyon-dev/whissage/config"
 	"log"
 )
 
@@ -18,7 +19,7 @@ func Subscribe() {
 
 	messages := make(chan *whisperv6.Message)
 	criteria := whisperv6.Criteria{
-		PrivateKeyID: testKey,
+		PrivateKeyID: config.TestKey,
 	}
 
 	sub, err := client.SubscribeMessages(context.Background(), criteria, messages)

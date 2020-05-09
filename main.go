@@ -7,6 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/whisper/shhclient"
 	"github.com/ethereum/go-ethereum/whisper/whisperv6"
+	"github.com/semyon-dev/whissage/config"
+	"github.com/semyon-dev/whissage/websockets"
 	"log"
 	"os"
 	"time"
@@ -19,19 +21,21 @@ func main() {
 
 	log.SetOutput(os.Stdout)
 
+	go websockets.Start()
+
 	client, err := shhclient.Dial(url)
 	if err != nil {
 		log.Fatal("connection: ", err)
 	}
 	fmt.Println("we have a whisper connection")
 
-	if len(testKey) == 0 {
+	if len(config.TestKey) == 0 {
 		keyID, err = client.NewKeyPair(context.Background())
 		if err != nil {
 			log.Fatal("NewKeyPair: ", err)
 		}
 		fmt.Println("keyID:", keyID)
-		file, err := os.OpenFile("keys.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		file, err := os.OpenFile("config/keys.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 		if err != nil {
 			log.Fatal("Open file: ", err)
 		}
@@ -39,10 +43,10 @@ func main() {
 		if err != nil {
 			log.Fatal("WriteString: ", err)
 		}
-		testKey = keyID
+		config.TestKey = keyID
 	}
 
-	publicKey, err := client.PublicKey(context.Background(), testKey)
+	publicKey, err := client.PublicKey(context.Background(), config.TestKey)
 	if err != nil {
 		log.Print("PublicKey", err)
 	}

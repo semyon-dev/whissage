@@ -7,6 +7,8 @@ The backend of blockchain-based messenger built on ethereum whisper.
 You need go v1.14 minimum & geth 
 
 #### Private network
+[more detailed in official wiki](https://github.com/ethereum/go-ethereum/wiki/Private-network)
+
 1. Creating The Genesis Block
 You should change address (alloc) in genesis.json before run!
 
@@ -16,7 +18,9 @@ You should change address (alloc) in genesis.json before run!
 
 `bootnode --nodekey=boot.key`
 
-than copy url and:
+`geth --rpc --shh --ws --wsapi web3,rpc,eth,net,shh --datadir . --networkid 2`
+
+or copy url and:
 
 `geth --rpc --shh --ws --wsapi web3,rpc,eth,net,shh --datadir . --networkid 2 --bootnodes enode://you_url`
 

@@ -30,7 +30,7 @@ func Subscribe() {
 	for {
 		select {
 		case err := <-sub.Err():
-			log.Fatal(err)
+			log.Println("ошибка: ", err)
 		case message := <-messages:
 			fmt.Print("we get a message: ", string(message.Payload))
 		}

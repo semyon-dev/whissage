@@ -1,29 +1,30 @@
 package main
 
 import (
-	"bufio"
 	"context"
+	"flag"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/whisper/shhclient"
 	"github.com/ethereum/go-ethereum/whisper/whisperv6"
+	"github.com/gorilla/websocket"
 	"github.com/semyon-dev/whissage/config"
-	"github.com/semyon-dev/whissage/websockets"
 	"log"
+	"net/http"
 	"os"
-	"time"
 )
 
 var keyID string
 var url = "ws://127.0.0.1:8546"
+var publicKey []byte
+var client *shhclient.Client
 
 func main() {
 
 	log.SetOutput(os.Stdout)
 
-	go websockets.Start()
-
-	client, err := shhclient.Dial(url)
+	var err error
+	client, err = shhclient.Dial(url)
 	if err != nil {
 		log.Fatal("connection: ", err)
 	}
@@ -46,7 +47,7 @@ func main() {
 		config.TestKey = keyID
 	}
 
-	publicKey, err := client.PublicKey(context.Background(), config.TestKey)
+	publicKey, err = client.PublicKey(context.Background(), config.TestKey)
 	if err != nil {
 		log.Print("PublicKey", err)
 	}
@@ -55,26 +56,48 @@ func main() {
 
 	go Subscribe() // Subscribe for messages
 
+	flag.Parse()
+	log.SetFlags(0)
+	http.HandleFunc("/", mainHandler)
+	log.Fatal(http.ListenAndServe(*addr, nil))
+}
+
+var addr = flag.String("addr", "localhost:8081", "http service address")
+var upgrader = websocket.Upgrader{} // use default options
+
+func mainHandler(w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Print("upgrade:", err)
+		return
+	}
+	defer c.Close()
 	for {
-		time.Sleep(500 * time.Millisecond)
-		fmt.Println("enter a message: ")
-		body, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		mt, message, err := c.ReadMessage()
 		if err != nil {
-			fmt.Println(err)
+			log.Println("read error:", err)
+			break
 		}
-		message := whisperv6.NewMessage{
-			Payload:   []byte(body),
+		log.Printf("получили: %s", message)
+
+		whisperMessage := whisperv6.NewMessage{
+			Payload:   message,
 			PublicKey: publicKey,
 			TTL:       60,
 			PowTime:   2,
 			PowTarget: 2.5,
 		}
-		messageHash, err := client.Post(context.Background(), message)
+		messageHash, err := client.Post(context.Background(), whisperMessage)
 		if err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println("messageHash: ", messageHash)
+		err = c.WriteMessage(mt, message)
+		if err != nil {
+			log.Println("write error:", err)
+			break
+		} else {
+			fmt.Println("успешно отправили")
+		}
 	}
-
-	// runtime.Goexit() // wait for goroutines to finish
 }

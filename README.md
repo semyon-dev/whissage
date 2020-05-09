@@ -3,8 +3,8 @@ The backend of blockchain-based messenger built on ethereum whisper.
 
 **Сurrently in active development**
 
-## Run & build
-You need go v1.14 minimum & geth 
+## Run
+You need [go v1.14 minimum](https://golang.org/dl/) & [geth](https://geth.ethereum.org/docs/install-and-build/installing-geth)
 
 #### Private network
 [more detailed in official wiki](https://github.com/ethereum/go-ethereum/wiki/Private-network)
@@ -30,7 +30,7 @@ or copy url and:
 
 #### Run app
 
-`go run main.go` or `go build main.go`
+`go run main.go` or only build `go build main.go`
 
 ## License
 [MIT](https://github.com/semyon-dev/whissage/blob/master/LICENSE)

@@ -62,7 +62,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
 
-var addr = flag.String("addr", "localhost:8081", "http service address")
+var addr = flag.String("addr", "127.0.0.1:8081", "http service address")
 var upgrader = websocket.Upgrader{} // use default options
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {

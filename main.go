@@ -101,3 +101,26 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func Subscribe() {
+
+	messages := make(chan *whisperv6.Message)
+	// критерия нет так как получаем все сообщения подряд
+	criteria := whisperv6.Criteria{
+		// PrivateKeyID: config.TestKey,
+	}
+
+	sub, err := client.SubscribeMessages(context.Background(), criteria, messages)
+	if err != nil {
+		log.Fatal("Не удалось подписаться на сообщения: ", err)
+	}
+
+	for {
+		select {
+		case err := <-sub.Err():
+			fmt.Println("ошибка в Subscribe(): ", err)
+		case message := <-messages:
+			fmt.Println("Получили сообщение через Subscribe(): ", string(message.Payload))
+		}
+	}
+}

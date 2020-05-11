@@ -3,6 +3,8 @@ The backend of blockchain-based messenger built on ethereum whisper.
 
 **Сurrently in active development**
 
+[Android client here](https://github.com/fvckyounimu/Whissage)
+
 ## Run
 You need [go v1.14 minimum](https://golang.org/dl/) & [geth](https://geth.ethereum.org/docs/install-and-build/installing-geth)
 

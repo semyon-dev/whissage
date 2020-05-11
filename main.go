@@ -85,7 +85,8 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Read error:", err)
 			break
 		}
-		fmt.Println("Получили от клиента: ", message)
+
+		fmt.Println("Получили от клиента: ", string(message))
 
 		whisperMessage := whisperv6.NewMessage{
 			Payload:   message,
@@ -103,6 +104,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // слушаем сообщения от ethereum whisper
+// и рассылаем всем клиентам
 func Subscribe() {
 
 	messages := make(chan *whisperv6.Message)

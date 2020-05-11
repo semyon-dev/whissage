@@ -104,9 +104,8 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 func Subscribe() {
 
 	messages := make(chan *whisperv6.Message)
-	// критерия нет так как получаем все сообщения подряд
 	criteria := whisperv6.Criteria{
-		// PrivateKeyID: config.TestKey,
+		PrivateKeyID: config.TestKey,
 	}
 
 	sub, err := client.SubscribeMessages(context.Background(), criteria, messages)

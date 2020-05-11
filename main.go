@@ -22,6 +22,8 @@ var connections map[*websocket.Conn]*websocket.Conn
 
 func main() {
 
+	connections = map[*websocket.Conn]*websocket.Conn{}
+
 	// логирование в консоль
 	log.SetOutput(os.Stdout)
 

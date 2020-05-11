@@ -73,7 +73,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("upgrade ws error:", err)
 		return
 	}
-	fmt.Println("new conn: ", c)
+	fmt.Println("new conn: ", c.RemoteAddr())
 	connections[c] = c
 	defer c.Close()
 	defer delete(connections, c)

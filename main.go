@@ -18,6 +18,7 @@ var keyID string
 var url = "ws://127.0.0.1:8546"
 var publicKey []byte
 var client *shhclient.Client
+var connections map[*websocket.Conn]*websocket.Conn
 
 func main() {
 
@@ -27,30 +28,30 @@ func main() {
 	var err error
 	client, err = shhclient.Dial(url)
 	if err != nil {
-		log.Fatal("connection: ", err)
+		log.Fatal("Connection error: ", err)
 	}
-	fmt.Println("we have a whisper connection")
+	fmt.Println("We have a whisper connection")
 
 	if len(config.TestKey) == 0 {
 		keyID, err = client.NewKeyPair(context.Background())
 		if err != nil {
-			log.Fatal("NewKeyPair: ", err)
+			log.Fatal("NewKeyPair error: ", err)
 		}
 		fmt.Println("keyID:", keyID)
 		file, err := os.OpenFile("config/keys.txt", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 		if err != nil {
-			log.Fatal("Open file: ", err)
+			log.Fatal("Open file error: ", err)
 		}
 		_, err = file.WriteString(keyID + "\n")
 		if err != nil {
-			log.Fatal("WriteString: ", err)
+			log.Fatal("WriteString error: ", err)
 		}
 		config.TestKey = keyID
 	}
 
 	publicKey, err = client.PublicKey(context.Background(), config.TestKey)
 	if err != nil {
-		log.Print("PublicKey", err)
+		log.Fatal("PublicKey fatal error", err)
 	}
 
 	fmt.Println("publicKey:", hexutil.Encode(publicKey))
@@ -72,14 +73,17 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("upgrade ws error:", err)
 		return
 	}
+	fmt.Println("new conn: ", c)
+	connections[c] = c
 	defer c.Close()
+	defer delete(connections, c)
 	for {
-		mt, message, err := c.ReadMessage()
+		_, message, err := c.ReadMessage()
 		if err != nil {
 			log.Println("Read error:", err)
 			break
 		}
-		log.Printf("Получили: %s \n", message)
+		fmt.Println("Получили от клиента: ", message)
 
 		whisperMessage := whisperv6.NewMessage{
 			Payload:   message,
@@ -93,13 +97,6 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Не удалось отправить сообщение: ", err)
 		}
 		fmt.Println("message hash: ", messageHash)
-		err = c.WriteMessage(mt, message)
-		if err != nil {
-			fmt.Println("Write error: ", err)
-			break
-		} else {
-			fmt.Println("Успешно отправили сообщение")
-		}
 	}
 }
 
@@ -120,9 +117,18 @@ func Subscribe() {
 	for {
 		select {
 		case err := <-sub.Err():
-			fmt.Println("ошибка в Subscribe(): ", err)
+			fmt.Println("ошибка в Subscribe: ", err)
 		case message := <-messages:
-			fmt.Println("Получили сообщение через Subscribe(): ", string(message.Payload))
+			fmt.Println("Получили сообщение через Subscribe: ", string(message.Payload))
+			for _, c := range connections {
+				err = c.WriteMessage(websocket.TextMessage, message.Payload)
+				if err != nil {
+					fmt.Println("Ошибка при отправке сообщения: ", err)
+					break
+				} else {
+					fmt.Println("Успешно отправили сообщение клиенту: ", c.RemoteAddr())
+				}
+			}
 		}
 	}
 }

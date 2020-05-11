@@ -21,6 +21,7 @@ var client *shhclient.Client
 
 func main() {
 
+	// логирование в консоль
 	log.SetOutput(os.Stdout)
 
 	var err error
@@ -68,17 +69,17 @@ var upgrader = websocket.Upgrader{} // use default options
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Print("upgrade:", err)
+		log.Println("upgrade ws error:", err)
 		return
 	}
 	defer c.Close()
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {
-			log.Println("read error:", err)
+			log.Println("Read error:", err)
 			break
 		}
-		log.Printf("получили: %s", message)
+		log.Printf("Получили: %s \n", message)
 
 		whisperMessage := whisperv6.NewMessage{
 			Payload:   message,
@@ -89,19 +90,20 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		messageHash, err := client.Post(context.Background(), whisperMessage)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println("Не удалось отправить сообщение: ", err)
 		}
-		fmt.Println("messageHash: ", messageHash)
+		fmt.Println("message hash: ", messageHash)
 		err = c.WriteMessage(mt, message)
 		if err != nil {
-			log.Println("write error:", err)
+			fmt.Println("Write error: ", err)
 			break
 		} else {
-			fmt.Println("успешно отправили")
+			fmt.Println("Успешно отправили сообщение")
 		}
 	}
 }
 
+// слушаем сообщения от ethereum whisper
 func Subscribe() {
 
 	messages := make(chan *whisperv6.Message)

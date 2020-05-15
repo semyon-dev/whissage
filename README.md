@@ -28,7 +28,7 @@ or copy url and:
 
 #### Mainnet
 
-`geth --rpc --shh --ws` or `geth --syncmode "light" --rpc --shh --ws`
+`geth --rpc --shh --ws --wsapi web3,rpc,eth,net,shh` or `geth --syncmode "light" --rpc --shh --ws --wsapi web3,rpc,eth,net,shh`
 
 #### Run app
 

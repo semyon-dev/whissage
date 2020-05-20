@@ -1,8 +1,6 @@
 # whissage (whisper messenger)
 The backend of blockchain-based messenger built on ethereum whisper.
 
-**Сurrently in active development**
-
 Clients:
 
 * [Android client here](https://github.com/fvckyounimu/Whissage)
